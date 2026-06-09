@@ -25,6 +25,12 @@
                 <div class="mb-3">
                     <input id="passwordInput" type="password" class="form-control" placeholder="Нууц үг (6+ тэмдэгт)">
                 </div>
+                <div class="mb-3">
+                    <input id="confirmPassword" type="password" class="form-control" placeholder="Нууц үг давтах">
+                </div>
+                <div class="mb-3">
+                    <input id="phoneInput" type="tel" class="form-control" placeholder="Утасны дугаар">
+                </div>
                 <button id="btnRegister" type="button" class="btn btn-primary w-100">Бүртгүүлэх</button>
                 <div class="mt-2">
                     <a href="index.html" class="btn btn-outline-secondary w-100">Нэвтрэх</a>
@@ -42,7 +48,9 @@
         document.getElementById('btnRegister').addEventListener('click', async () => {
             const email = document.getElementById('emailInput').value
             const password = document.getElementById('passwordInput').value
+            const confirmPassword = document.getElementById('confirmPassword').value
             const fullName = document.getElementById('fullName').value
+            const phone = document.getElementById('phoneInput').value
 
             if (!email || !password) {
                 showMessage('Email болон нууц үгээ заавал оруулна уу', 'text-danger')
@@ -52,8 +60,12 @@
                 showMessage('Нууц үг нь доод тал нь 6 тэмдэгт байх ёстой', 'text-danger')
                 return
             }
+            if (password !== confirmPassword) {
+                showMessage('Нууц үг таарахгүй байна', 'text-danger')
+                return
+            }
 
-            await register(email, password, fullName)
+            await register(email, password, fullName, phone)
         })
     </script>
 </body>

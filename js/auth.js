@@ -13,11 +13,11 @@ export async function login(email, password) {
 }
 
 // Бүртгүүлэх
-export async function register(email, password, fullName) {
+export async function register(email, password, fullName, phone) {
     const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: { data: { full_name: fullName } }
+        options: { data: { full_name: fullName, phone } }
     })
     if (error) {
         showMessage('Алдаа: ' + error.message, 'text-danger')
