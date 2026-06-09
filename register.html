@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Бүртгүүлэх</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="card shadow rounded-4 p-4" style="max-width: 400px; width: 100%;">
+        <div class="card-body">
+            <h1 class="card-title h4">Бүртгүүлэх</h1>
+            <p id="message"></p>
+            <form id="registerForm">
+                <div class="mb-3">
+                    <input id="fullName" type="text" class="form-control" placeholder="Бүтэн нэр">
+                </div>
+                <div class="mb-3">
+                    <input id="emailInput" type="email" class="form-control" placeholder="Email хаяг">
+                </div>
+                <div class="mb-3">
+                    <input id="passwordInput" type="password" class="form-control" placeholder="Нууц үг (6+ тэмдэгт)">
+                </div>
+                <button id="btnRegister" type="button" class="btn btn-primary w-100">Бүртгүүлэх</button>
+                <div class="mt-2">
+                    <a href="index.html" class="btn btn-outline-secondary w-100">Нэвтрэх</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script type="module">
+        import { register, showMessage } from './js/auth.js'
+
+        document.getElementById('btnRegister').addEventListener('click', async () => {
+            const email = document.getElementById('emailInput').value
+            const password = document.getElementById('passwordInput').value
+            const fullName = document.getElementById('fullName').value
+
+            if (!email || !password) {
+                showMessage('Email болон нууц үгээ заавал оруулна уу', 'text-danger')
+                return
+            }
+            if (password.length < 6) {
+                showMessage('Нууц үг нь доод тал нь 6 тэмдэгт байх ёстой', 'text-danger')
+                return
+            }
+
+            await register(email, password, fullName)
+        })
+    </script>
+</body>
+
+</html>
