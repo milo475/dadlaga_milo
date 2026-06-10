@@ -72,7 +72,9 @@ form.addEventListener('submit', async (e) => {
 
     form.reset()
     loadTransactions()
-    await checkBudgetWarning(payload.category, payload.date)
+    if (payload.type === 'expense') {
+        await checkBudgetWarning(payload.category, payload.date)
+    }
 })
 
 // Edit
@@ -100,16 +102,16 @@ loadTransactions()
 
 // Budget warning check
 async function checkBudgetWarning(category, date) {
-    const month = date.slice(0, 7) // "2026-06"
-    const { data: budget } = await supabase
+    const month = date.slice(0, 7)
+    const { data: budget, error: bErr } = await supabase
         .from('budgets')
         .select('amount')
         .eq('user_id', user.id)
         .eq('category', category)
         .eq('month', month)
-        .single()
+        .maybeSingle()
 
-    if (!budget) return
+    if (bErr || !budget) return
 
     const { data: expenses } = await supabase
         .from('transactions')
@@ -120,9 +122,11 @@ async function checkBudgetWarning(category, date) {
         .gte('date', month + '-01')
         .lte('date', month + '-31')
 
-    const total = expenses ? expenses.reduce((sum, e) => sum + e.amount, 0) : 0
-    if (total > budget.amount) {
-        alert(`⚠️ Анхааруулга: "${category}" ангилалд тогтоосон төсөв ${Number(budget.amount).toLocaleString()}₮-г хэтэрлээ! Одоогийн зарцуулалт: ${total.toLocaleString()}₮`)
+    const total = expenses ? expenses.reduce((sum, e) => sum + Number(e.amount), 0) : 0
+    if (total > Number(budget.amount)) {
+        setTimeout(() => {
+            alert(`⚠️ Анхааруулга: "${category}" ангилалд тогтоосон төсөв ${Number(budget.amount).toLocaleString()}₮-г хэтэрлээ!\nОдоогийн зарцуулалт: ${total.toLocaleString()}₮`)
+        }, 100)
     }
 }
 
