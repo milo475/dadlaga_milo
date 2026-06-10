@@ -96,3 +96,43 @@ document.getElementById('date').valueAsDate = new Date()
 
 // Initial load
 loadTransactions()
+
+// Budget logic
+const budgetForm = document.getElementById('budgetForm')
+const budgetList = document.getElementById('budgetList')
+
+async function loadBudgets() {
+    const { data, error } = await supabase
+        .from('budgets')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('month', { ascending: false })
+
+    if (error) { console.error(error); return }
+
+    budgetList.innerHTML = ''
+    data.forEach(b => {
+        budgetList.innerHTML += `<li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>${b.category} — ${b.month}</span>
+            <span class="badge bg-warning text-dark">${Number(b.amount).toLocaleString()}₮</span>
+        </li>`
+    })
+}
+
+budgetForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const payload = {
+        user_id: user.id,
+        category: document.getElementById('budgetCategory').value,
+        amount: Number(document.getElementById('budgetAmount').value),
+        month: document.getElementById('budgetMonth').value
+    }
+
+    const { error } = await supabase.from('budgets').insert(payload)
+    if (error) { alert('Алдаа: ' + error.message); return }
+
+    budgetForm.reset()
+    loadBudgets()
+})
+
+loadBudgets()
