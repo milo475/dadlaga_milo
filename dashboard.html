@@ -1,11 +1,132 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="mn">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Хянах самбар</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
+
 <body>
-    <h1>mnkh-ocir</h1>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Санхүүгийн Удирдлага</a>
+            <div class="ms-auto d-flex align-items-center">
+                <span id="userEmail"    class="text-light me-3"></span>
+                <button id="logoutBtn" class="btn btn-outline-light btn-sm">Гарах</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="fa fa-arrow-up"></i> Орлого</h6>
+                        <h4 id="totalIncome">0₮</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-danger">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="fa fa-arrow-down"></i> Зарлага</h6>
+                        <h4 id="totalExpense">0₮</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="fa fa-wallet"></i> Үлдэгдэл</h6>
+                        <h4 id="totalBalance">0₮</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form + Table Row -->
+        <div class="row">
+            <!-- Transaction Form -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Гүйлгээ нэмэх</h5>
+                        <form id="transactionForm">
+                            <div class="mb-3">
+                                <label class="form-label">Төрөл</label>
+                                <select id="type" class="form-select" required>
+                                    <option value="income">Орлого</option>
+                                    <option value="expense">Зарлага</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Дүн</label>
+                                <input type="number" id="amount" class="form-control" placeholder="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Ангилал</label>
+                                <select id="category" class="form-select" required>
+                                    <option value="Хүнс">Хүнс</option>
+                                    <option value="Цалин">Цалин</option>
+                                    <option value="Тээвэр">Тээвэр</option>
+                                    <option value="Орон байр">Орон байр</option>
+                                    <option value="Үзвэр үйлчилгээ">Үзвэр үйлчилгээ</option>
+                                    <option value="Бусад">Бусад</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Тайлбар</label>
+                                <input type="text" id="description" class="form-control" placeholder="Тайлбар" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Огноо</label>
+                                <input type="date" id="date" class="form-control" required>
+                            </div>
+                            <input type="hidden" id="editId">
+                            <button type="submit" class="btn btn-primary w-100">Хадгалах</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction History Table -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Гүйлгээний түүх</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Огноо</th>
+                                        <th>Төрөл</th>
+                                        <th>Ангилал</th>
+                                        <th>Тайлбар</th>
+                                        <th>Дүн</th>
+                                        <th>Үйлдэл</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+    <script type="module" src="js/dashboard.js"></script>
 </body>
+
 </html>
