@@ -103,6 +103,8 @@ loadTransactions()
 // Budget warning check
 async function checkBudgetWarning(category, date) {
     const month = date.slice(0, 7)
+    console.log('Budget check:', { category, month })
+
     const { data: budget, error: bErr } = await supabase
         .from('budgets')
         .select('amount')
@@ -110,6 +112,8 @@ async function checkBudgetWarning(category, date) {
         .eq('category', category)
         .eq('month', month)
         .maybeSingle()
+
+    console.log('Budget found:', budget, 'Error:', bErr)
 
     if (bErr || !budget) return
 
@@ -123,10 +127,10 @@ async function checkBudgetWarning(category, date) {
         .lte('date', month + '-31')
 
     const total = expenses ? expenses.reduce((sum, e) => sum + Number(e.amount), 0) : 0
+    console.log('Total expenses:', total, 'Budget limit:', Number(budget.amount))
+
     if (total > Number(budget.amount)) {
-        setTimeout(() => {
-            alert(`⚠️ Анхааруулга: "${category}" ангилалд тогтоосон төсөв ${Number(budget.amount).toLocaleString()}₮-г хэтэрлээ!\nОдоогийн зарцуулалт: ${total.toLocaleString()}₮`)
-        }, 100)
+        alert(`⚠️ Анхааруулга: "${category}" ангилалд тогтоосон төсөв ${Number(budget.amount).toLocaleString()}₮-г хэтэрлээ!\nОдоогийн зарцуулалт: ${total.toLocaleString()}₮`)
     }
 }
 
