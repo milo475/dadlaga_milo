@@ -72,6 +72,7 @@ form.addEventListener('submit', async (e) => {
 
     form.reset()
     loadTransactions()
+    await checkBudgetWarning(payload.category, payload.date)
 })
 
 // Edit
@@ -96,6 +97,34 @@ document.getElementById('date').valueAsDate = new Date()
 
 // Initial load
 loadTransactions()
+
+// Budget warning check
+async function checkBudgetWarning(category, date) {
+    const month = date.slice(0, 7) // "2026-06"
+    const { data: budget } = await supabase
+        .from('budgets')
+        .select('amount')
+        .eq('user_id', user.id)
+        .eq('category', category)
+        .eq('month', month)
+        .single()
+
+    if (!budget) return
+
+    const { data: expenses } = await supabase
+        .from('transactions')
+        .select('amount')
+        .eq('user_id', user.id)
+        .eq('type', 'expense')
+        .eq('category', category)
+        .gte('date', month + '-01')
+        .lte('date', month + '-31')
+
+    const total = expenses ? expenses.reduce((sum, e) => sum + e.amount, 0) : 0
+    if (total > budget.amount) {
+        alert(`⚠️ Анхааруулга: "${category}" ангилалд тогтоосон төсөв ${Number(budget.amount).toLocaleString()}₮-г хэтэрлээ! Одоогийн зарцуулалт: ${total.toLocaleString()}₮`)
+    }
+}
 
 // Budget logic
 const budgetForm = document.getElementById('budgetForm')
