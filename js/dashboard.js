@@ -68,6 +68,7 @@ form.addEventListener('submit', async (e) => {
     } else {
         const { error } = await supabase.from('transactions').insert(payload)
         if (error) { alert('Алдаа: ' + error.message); return }
+        awardDailyPoints()
     }
 
     form.reset()
@@ -96,6 +97,44 @@ window.deleteTransaction = async (id) => {
 
 // Set default date to today
 document.getElementById('date').valueAsDate = new Date()
+
+// === Points / Rank System ===
+function getPointsKey() { return `points_${user.id}` }
+function getLastDateKey() { return `points_lastdate_${user.id}` }
+
+function getPoints() { return Number(localStorage.getItem(getPointsKey()) || 0) }
+function setPoints(p) { localStorage.setItem(getPointsKey(), p) }
+
+function getRank(points) {
+    if (points >= 600) return { name: 'Legend', icon: 'fa-solid fa-crown', color: '#ff4500' }
+    if (points >= 300) return { name: 'Gold', icon: 'fa-solid fa-trophy', color: '#ffd700' }
+    if (points >= 100) return { name: 'Silver', icon: 'fa-solid fa-medal', color: '#c0c0c0' }
+    return { name: 'Bronze', icon: 'fa-solid fa-shield', color: '#cd7f32' }
+}
+
+function updatePointsUI() {
+    const points = getPoints()
+    const rank = getRank(points)
+    const capped = Math.min(points, 1000)
+    const percent = (capped / 1000) * 100
+
+    document.getElementById('rankIcon').innerHTML = `<i class="${rank.icon}" style="color:${rank.color}"></i>`
+    document.getElementById('rankLabel').textContent = rank.name
+    document.getElementById('rankLabel').style.color = rank.color
+    document.getElementById('pointsBar').style.width = percent + '%'
+    document.getElementById('pointsText').textContent = `${capped} pts`
+}
+
+function awardDailyPoints() {
+    const today = new Date().toISOString().slice(0, 10)
+    const lastDate = localStorage.getItem(getLastDateKey())
+    if (lastDate === today) return // already awarded today
+    localStorage.setItem(getLastDateKey(), today)
+    setPoints(Math.min(getPoints() + 10, 1000))
+    updatePointsUI()
+}
+
+updatePointsUI()
 
 // Initial load
 loadTransactions()
