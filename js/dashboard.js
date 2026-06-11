@@ -142,33 +142,33 @@ loadTransactions()
 // Budget warning check
 async function checkBudgetWarning(category, date) {
     const month = date.slice(0, 7)
-    console.log('Budget check:', { category, month })
 
-    const { data: budget, error: bErr } = await supabase
+    const { data: budgets, error: bErr } = await supabase
         .from('budgets')
-        .select('amount')
+        .select('amount, category')
         .eq('user_id', user.id)
-        .eq('category', category)
         .eq('month', month)
-        .maybeSingle()
 
-    console.log('Budget found:', budget, 'Error:', bErr)
+    if (bErr || !budgets || budgets.length === 0) return
 
-    if (bErr || !budget) return
+    // Check specific category budget
+    const catBudget = budgets.find(b => b.category === category)
+    if (catBudget) {
+        const { data: expenses } = await supabase
+            .from('transactions')
+            .select('amount')
+            .eq('user_id', user.id)
+            .eq('type', 'expense')
+            .eq('category', category)
+            .gte('date', month + '-01')
+            .lte('date', month + '-31')
 
-    const { data: expenses } = await supabase
-        .from('transactions')
-        .select('amount')
-        .eq('user_id', user.id)
-        .eq('type', 'expense')
-        .eq('category', category)
-        .like('date', month + '%')
-
-    const total = expenses ? expenses.reduce((sum, e) => sum + Number(e.amount), 0) : 0
-    console.log('Total expenses:', total, 'Budget limit:', Number(budget.amount))
-
-    if (total > Number(budget.amount)) {
-        alert(`⚠️ Анхааруулга: "${category}" ангилалд тогтоосон төсөв ${Number(budget.amount).toLocaleString()}₮-г хэтэрлээ!\nОдоогийн зарцуулалт: ${total.toLocaleString()}₮`)
+        const total = expenses ? expenses.reduce((sum, e) => sum + Number(e.amount), 0) : 0
+        const budgetAmt = Number(catBudget.amount)
+        if (total > budgetAmt) {
+            const exceeded = total - budgetAmt
+            alert(`⚠️ Анхааруулга: "${category}" ангилалын төсөв ${budgetAmt.toLocaleString()}₮-г хэтэрч ${total.toLocaleString()}₮ болсон байна! (${exceeded.toLocaleString()}₮-р хэтэрсэн)`)
+        }
     }
 }
 
