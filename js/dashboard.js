@@ -48,7 +48,6 @@ async function loadTransactions() {
     document.getElementById('totalBalance').textContent = (income - expense).toLocaleString() + '₮'
 }
 
-// Create / Update
 form.addEventListener('submit', async (e) => {
     e.preventDefault()
     const payload = {
@@ -78,7 +77,6 @@ form.addEventListener('submit', async (e) => {
     }
 })
 
-// Edit
 window.editTransaction = (id, type, amount, description, date, category) => {
     editId.value = id
     document.getElementById('type').value = type
@@ -88,17 +86,14 @@ window.editTransaction = (id, type, amount, description, date, category) => {
     document.getElementById('date').value = date
 }
 
-// Delete
 window.deleteTransaction = async (id) => {
     if (!confirm('Устгах уу?')) return
     await supabase.from('transactions').delete().eq('id', id)
     loadTransactions()
 }
 
-// Set default date to today
 document.getElementById('date').valueAsDate = new Date()
 
-// === Points / Rank System ===
 function getPointsKey() { return `points_${user.id}` }
 function getLastDateKey() { return `points_lastdate_${user.id}` }
 
@@ -136,12 +131,11 @@ function awardDailyPoints() {
 
 updatePointsUI()
 
-// Initial load
 loadTransactions()
 
-// Budget warning check
 async function checkBudgetWarning(category, date) {
     const month = date.slice(0, 7)
+    console.log('checkBudgetWarning called:', { category, date, month })
 
     const { data: budgets, error: bErr } = await supabase
         .from('budgets')
@@ -149,22 +143,34 @@ async function checkBudgetWarning(category, date) {
         .eq('user_id', user.id)
         .eq('month', month)
 
+    console.log('Budgets query result:', { budgets, bErr })
+
     if (bErr || !budgets || budgets.length === 0) return
 
-    // Check specific category budget
     const catBudget = budgets.find(b => b.category === category)
+    console.log('Category budget found:', catBudget)
     if (catBudget) {
-        const { data: expenses } = await supabase
+        const [y, m] = month.split('-').map(Number)
+        const startDate = `${month}-01`
+        const endDate = new Date(y, m, 0).toISOString().slice(0, 10)
+        console.log('Date range:', { startDate, endDate })
+
+        const { data: expenses, error: eErr } = await supabase
             .from('transactions')
             .select('amount')
             .eq('user_id', user.id)
             .eq('type', 'expense')
             .eq('category', category)
-            .gte('date', month + '-01')
-            .lte('date', month + '-31')
+            .gte('date', startDate)
+            .lte('date', endDate)
+
+        console.log('Expenses query result:', { expenses, eErr })
+
+        if (eErr) { console.error('Expense query error:', eErr); return }
 
         const total = expenses ? expenses.reduce((sum, e) => sum + Number(e.amount), 0) : 0
         const budgetAmt = Number(catBudget.amount)
+        console.log('Comparison:', { total, budgetAmt, exceeded: total > budgetAmt })
         if (total > budgetAmt) {
             const exceeded = total - budgetAmt
             alert(`⚠️ Анхааруулга: "${category}" ангилалын төсөв ${budgetAmt.toLocaleString()}₮-г хэтэрч ${total.toLocaleString()}₮ болсон байна! (${exceeded.toLocaleString()}₮-р хэтэрсэн)`)
@@ -172,7 +178,6 @@ async function checkBudgetWarning(category, date) {
     }
 }
 
-// Budget logic
 const budgetForm = document.getElementById('budgetForm')
 const budgetList = document.getElementById('budgetList')
 

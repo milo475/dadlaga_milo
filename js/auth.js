@@ -1,6 +1,5 @@
 import { supabase } from './supabase.js'
 
-// Нэвтрэх
 export async function login(email, password) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
@@ -12,7 +11,6 @@ export async function login(email, password) {
     return data
 }
 
-// Бүртгүүлэх
 export async function register(email, password, fullName, phone) {
     const { data, error } = await supabase.auth.signUp({
         email,
@@ -27,19 +25,16 @@ export async function register(email, password, fullName, phone) {
     return data
 }
 
-// Гарах
 export async function logout() {
     await supabase.auth.signOut()
     window.location.href = 'index.html'
 }
 
-// Одоогийн хэрэглэгч авах
 export async function getUser() {
     const { data: { user } } = await supabase.auth.getUser()
     return user
 }
 
-// Мэдэгдэл харуулах
 export function showMessage(msg, cssClass) {
     const el = document.getElementById('message')
     if (!el) return
